@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Arquivos Online</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            height: 100vh;
+        }
+        h1 {
+            color: #4CAF50;
+            text-align: center;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .converter-container {
+            display: flex;
+            justify-content: space-between;
+            width: 90%;
+            flex-wrap: wrap;
+        }
+        .converter-box {
+            background-color: white;
+            padding: 20px;
+            margin: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 30%;
+            box-sizing: border-box;
+        }
+        .converter-box h2 {
+            color: #333;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+            width: 100%;
+        }
+        select, button {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #output {
+            margin-top: 20px;
+            display: none;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Conversor de Arquivos Online</h1>
+
+    <div class="converter-container">
+        <!-- Conversão de Arquivos de Texto -->
+        <div class="converter-box">
+            <h2>Conversor de Arquivos de Texto</h2>
+            <input type="file" id="inputTextFile" accept=".txt,.doc,.docm,.docx,.bin,.csv,.xml,.ppt">
+            <select id="textOutputFormat">
+                <option value="text/plain">TXT</option>
+                <option value="application/pdf">PDF</option>
+            </select>
+            <button onclick="convertText()">Converter</button>
+            <div id="outputText"></div>
+        </div>
+
+        <!-- Conversão de Vídeos -->
+        <div class="converter-box">
+            <h2>Conversor de Vídeos</h2>
+            <input type="file" id="inputVideoFile" accept="video/*">
+            <select id="videoOutputFormat">
+                <option value="video/mp4">MP4</option>
+                <option value="video/webm">WEBM</option>
+            </select>
+            <button onclick="convertVideo()">Converter</button>
+            <div id="outputVideo"></div>
+        </div>
+
+        <!-- Conversão de Música -->
+        <div class="converter-box">
+            <h2>Conversor de Música</h2>
+            <input type="file" id="inputAudioFile" accept="audio/*">
+            <select id="audioOutputFormat">
+                <option value="audio/mp3">MP3</option>
+                <option value="audio/wav">WAV</option>
+            </select>
+            <button onclick="convertAudio()">Converter</button>
+            <div id="outputAudio"></div>
+        </div>
+    </div>
+
+    <script>
+        // Função para ler e exibir o conteúdo de arquivos de texto
+        function convertText() {
+            const inputFile = document.getElementById('inputTextFile').files[0];
+            const outputFormat = document.getElementById('textOutputFormat').value;
+            const outputText = document.getElementById('outputText');
+
+            if (!inputFile) {
+                alert("Por favor, selecione um arquivo de texto.");
+                return;
+            }
+
+            const reader = new FileReader();
+
+            // Tratamento de diferentes tipos de arquivos
+            reader.onload = function(event) {
+                const fileContent = event.target.result;
+
+                // Verificando a extensão do arquivo
+                const fileExtension = inputFile.name.split('.').pop().toLowerCase();
+
+                if (['txt', 'csv', 'xml', 'bin'].includes(fileExtension)) {
+                    // Exibe arquivos de texto (txt, csv, xml, bin)
+                    outputText.innerHTML = `<pre>${fileContent}</pre>`;
+                } else if (['doc', 'docm', 'docx'].includes(fileExtension)) {
+                    // Tentativa de exibir conteúdo de arquivos do Word (simplesmente exibe como texto)
+                    outputText.innerHTML = `<pre>${fileContent}</pre>`;
+                } else if (fileExtension === 'ppt') {
+                    // Para arquivos PowerPoint, exibe um aviso que o conteúdo não pode ser lido diretamente
+                    outputText.innerHTML = "<p>Não é possível exibir o conteúdo de arquivos PowerPoint diretamente.</p>";
+                } else {
+                    // Caso não tenha sido tratado, exibe conteúdo bruto
+                    outputText.innerHTML = `<pre>Formato de arquivo não suportado para visualização direta.</pre>`;
+                }
+            };
+
+            if (['csv', 'txt', 'xml', 'bin'].includes(inputFile.name.split('.').pop().toLowerCase())) {
+                reader.readAsText(inputFile);
+            } else {
+                reader.readAsBinaryString(inputFile);
+            }
+        }
+
+        // Conversão de Vídeos
+        function convertVideo() {
+            const inputFile = document.getElementById('inputVideoFile').files[0];
+            const outputFormat = document.getElementById('videoOutputFormat').value;
+            const outputVideo = document.getElementById('outputVideo');
+
+            if (!inputFile) {
+                alert("Por favor, selecione um arquivo de vídeo.");
+                return;
+            }
+
+            const videoUrl = URL.createObjectURL(inputFile);
+            const videoElement = document.createElement("video");
+            videoElement.src = videoUrl;
+            videoElement.controls = true;
+            videoElement.width = 300;
+            outputVideo.innerHTML = "";
+            outputVideo.appendChild(videoElement);
+        }
+
+        // Conversão de Música
+        function convertAudio() {
+            const inputFile = document.getElementById('inputAudioFile').files[0];
+            const outputFormat = document.getElementById('audioOutputFormat').value;
+            const outputAudio = document.getElementById('outputAudio');
+
+            if (!inputFile) {
+                alert("Por favor, selecione um arquivo de música.");
+                return;
+            }
+
+            const audioUrl = URL.createObjectURL(inputFile);
+            const audioElement = document.createElement("audio");
+            audioElement.src = audioUrl;
+            audioElement.controls = true;
+            audioElement.width = 300;
+            outputAudio.innerHTML = "";
+            outputAudio.appendChild(audioElement);
+        }
+    </script>
+
+</body>
+</html>
